@@ -133,6 +133,13 @@ pub struct NodeConfig<ChainSpec> {
 
     /// All pruning related arguments
     pub pruning: PruningArgs,
+
+    /// Always process payload attributes and begin a payload build process even if
+    /// `forkchoiceState.headBlockHash` is already the canonical head or an ancestor. See
+    /// `TreeConfig::always_process_payload_attributes_on_canonical_head` for more details.
+    ///
+    /// Note: This is a no-op on OP Stack.
+    pub always_process_payload_attributes_on_canonical_head: bool,
 }
 
 impl NodeConfig<ChainSpec> {
@@ -161,6 +168,7 @@ impl<ChainSpec> NodeConfig<ChainSpec> {
             dev: DevArgs::default(),
             pruning: PruningArgs::default(),
             datadir: DatadirArgs::default(),
+            always_process_payload_attributes_on_canonical_head: false,
         }
     }
 
@@ -449,6 +457,8 @@ impl<ChainSpec> NodeConfig<ChainSpec> {
             db: self.db,
             dev: self.dev,
             pruning: self.pruning,
+            always_process_payload_attributes_on_canonical_head: self
+                .always_process_payload_attributes_on_canonical_head,
         }
     }
 }
@@ -475,6 +485,8 @@ impl<ChainSpec> Clone for NodeConfig<ChainSpec> {
             dev: self.dev,
             pruning: self.pruning.clone(),
             datadir: self.datadir.clone(),
+            always_process_payload_attributes_on_canonical_head: self
+                .always_process_payload_attributes_on_canonical_head,
         }
     }
 }

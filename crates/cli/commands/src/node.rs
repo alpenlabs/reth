@@ -110,6 +110,17 @@ pub struct NodeCommand<
     /// Additional cli arguments
     #[command(flatten, next_help_heading = "Extension")]
     pub ext: Ext,
+
+    /// Always process payload attributes and begin a payload build process even if
+    /// `forkchoiceState.headBlockHash` is already the canonical head or an ancestor. See
+    /// `TreeConfig::always_process_payload_attributes_on_canonical_head` for more details.
+    ///
+    /// Note: This is a no-op on OP Stack.
+    #[arg(
+        long = "engine.always-process-payload-attributes-on-canonical-head",
+        default_value = "false"
+    )]
+    pub always_process_payload_attributes_on_canonical_head: bool,
 }
 
 impl<C: ChainSpecParser> NodeCommand<C> {
@@ -160,6 +171,7 @@ impl<
             dev,
             pruning,
             ext,
+            always_process_payload_attributes_on_canonical_head,
         } = self;
 
         // set up node config
@@ -177,6 +189,7 @@ impl<
             db,
             dev,
             pruning,
+            always_process_payload_attributes_on_canonical_head,
         };
 
         let data_dir = node_config.datadir();

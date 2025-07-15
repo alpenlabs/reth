@@ -288,6 +288,7 @@ where
             consensus_engine_tx,
             Box::pin(consensus_engine_stream),
             hooks,
+            ctx.node_config().always_process_payload_attributes_on_canonical_head,
         )?;
         info!(target: "reth::cli", "Consensus engine initialized");
 

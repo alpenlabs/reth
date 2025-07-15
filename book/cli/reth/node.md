@@ -700,6 +700,10 @@ Engine:
 
           [default: 2]
 
+      --engine.always-process-payload-attributes-on-canonical-head
+          Always process payload attributes and begin a payload build process even if `forkchoiceState.headBlockHash` is already the canonical head or an ancestor. See `TreeConfig::always_process_payload_attributes_on_canonical_head` for more details.
+          Note: This is a no-op on OP Stack.
+
 Logging:
       --log.stdout.format <FORMAT>
           The format to use for logs written to stdout

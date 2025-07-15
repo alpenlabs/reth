@@ -225,6 +225,12 @@ where
     event_sender: EventSender<BeaconConsensusEngineEvent>,
     /// Consensus engine metrics.
     metrics: EngineMetrics,
+    /// Always process payload attributes and begin a payload build process even if
+    /// `forkchoiceState.headBlockHash` is already the canonical head or an ancestor. See
+    /// `TreeConfig::always_process_payload_attributes_on_canonical_head` for more details.
+    ///
+    /// Note: This is a no-op on OP Stack.
+    always_process_payload_attributes_on_canonical_head: bool,
 }
 
 impl<N, BT, Client> BeaconConsensusEngine<N, BT, Client>
@@ -267,6 +273,7 @@ where
             to_engine,
             Box::pin(UnboundedReceiverStream::from(rx)),
             hooks,
+            false,
         )
     }
 
@@ -297,6 +304,7 @@ where
         to_engine: UnboundedSender<BeaconEngineMessage<N::Engine>>,
         engine_message_stream: BoxStream<'static, BeaconEngineMessage<N::Engine>>,
         hooks: EngineHooks,
+        always_process_payload_attributes_on_canonical_head: bool,
     ) -> RethResult<(Self, BeaconConsensusEngineHandle<N::Engine>)> {
         let event_sender = EventSender::default();
         let handle = BeaconConsensusEngineHandle::new(to_engine);
@@ -324,6 +332,7 @@ where
             hooks: EngineHooksController::new(hooks),
             event_sender,
             metrics: EngineMetrics::default(),
+            always_process_payload_attributes_on_canonical_head,
         };
 
         let maybe_pipeline_target = match target {
@@ -474,6 +483,16 @@ where
                 "[Optimism] Allowing beacon reorg to old head"
             );
             return true
+        }
+
+        if self.always_process_payload_attributes_on_canonical_head {
+            debug!(
+                target: "consensus::engine",
+                fcu_head_num=?header.number,
+                current_head_num=?head.number,
+                "Allowing beacon reorg to old head"
+            );
+            return true;
         }
 
         // 2. Client software MAY skip an update of the forkchoice state and MUST NOT begin a
